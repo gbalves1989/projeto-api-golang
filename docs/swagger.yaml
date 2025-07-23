@@ -1,0 +1,673 @@
+basePath: /api/v1
+definitions:
+  requests.CategoryCreateOrUpdateRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  requests.ProductCreateOrUpdateRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        minimum: 0
+        type: number
+      stock:
+        minimum: 0
+        type: integer
+    required:
+    - category_id
+    - name
+    - price
+    - stock
+    type: object
+  requests.UserUpdatePasswordRequest:
+    properties:
+      confirm_password:
+        minLength: 6
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - confirm_password
+    - password
+    type: object
+  requests.UserUpdateRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  responses.CategoryListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/responses.PaginationResponse'
+      message:
+        type: string
+      status_code:
+        type: string
+    type: object
+  responses.CategoryResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status_code:
+        type: string
+    type: object
+  responses.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      status_code:
+        type: string
+    type: object
+  responses.PaginationResponse:
+    properties:
+      data: {}
+      hasNext:
+        type: boolean
+      hasPrevious:
+        type: boolean
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+    type: object
+  responses.ProductResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status_code:
+        type: string
+    type: object
+  responses.UserData:
+    properties:
+      avatar_url:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  responses.UserResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/responses.UserData'
+      message:
+        type: string
+      status_code:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API desenvolvida em golang para cadastrar categoria e produtos
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API de estoque de produtos
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Responsável por retornar uma lista categorias
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retorna uma lista de categorias
+          schema:
+            $ref: '#/definitions/responses.CategoryListResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Retonar uma lista categorias
+      tags:
+      - Categorias
+    post:
+      consumes:
+      - application/json
+      description: Responsável por cadastrar uma nova categoria
+      parameters:
+      - description: Dados da categoria
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CategoryCreateOrUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Retorna os dados da categoria
+          schema:
+            $ref: '#/definitions/responses.CategoryResponse'
+        "400":
+          description: Dados de entrada inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "409":
+          description: Nome da categoria já existe
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Cadastrar uma nova categoria
+      tags:
+      - Categorias
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Responsável por remover uma categoria por ID
+      parameters:
+      - description: ID da Categoria
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: ID de categoria inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Categoria não encontrada
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno | Categoria possui produtos cadastrados
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Remover uma categoria por ID
+      tags:
+      - Categorias
+    get:
+      consumes:
+      - application/json
+      description: Responsável por retornar uma categoria por ID
+      parameters:
+      - description: ID da Categoria
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retorna uma categoria
+          schema:
+            $ref: '#/definitions/responses.CategoryResponse'
+        "400":
+          description: ID de categoria inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Categoria não encontrada
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Retornar uma categoria por ID
+      tags:
+      - Categorias
+    put:
+      consumes:
+      - application/json
+      description: Responsável por atualizar as informações de um produto por ID
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados do produto
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ProductCreateOrUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Retorna um produto atualizado
+          schema:
+            $ref: '#/definitions/responses.ProductResponse'
+        "400":
+          description: Dados de entrada inválido | ID do produto inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Produto não encontrado | Categoria não encontrada
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "409":
+          description: Nome do produto já está cadastrado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Atualizar um produto por ID
+      tags:
+      - Produtos
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Responsável por retornar uma lista de produtos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retorna uma lista de produtos
+          schema:
+            $ref: '#/definitions/responses.ProductResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Listar produtos
+      tags:
+      - Produtos
+    post:
+      consumes:
+      - application/json
+      description: Responsável por cadastrar um novo produto
+      parameters:
+      - description: Dados do produto
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ProductCreateOrUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Retorna os dados do produto
+          schema:
+            $ref: '#/definitions/responses.ProductResponse'
+        "400":
+          description: Dados de entrada inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "409":
+          description: Nome do produto já existe
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Cadastrar um novo produto
+      tags:
+      - Produtos
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Responsável por remover um produto por ID
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: ID do produto inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Produto não encontrado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove um produto por ID
+      tags:
+      - Produtos
+    get:
+      consumes:
+      - application/json
+      description: Responsável por retornar um produto por ID
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retorna um produto
+          schema:
+            $ref: '#/definitions/responses.ProductResponse'
+        "400":
+          description: ID do produto inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Produto não encontrado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Retorna um produto por ID
+      tags:
+      - Produtos
+  /products/upload/{id}:
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Responsável por atualizar a imagem de um produto por ID
+      parameters:
+      - description: ID do produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Arquivo de imagem do produto (JPEG, PNG, GIF, máx 5MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Retorna um produto com a imagem atualizada
+          schema:
+            $ref: '#/definitions/responses.ProductResponse'
+        "400":
+          description: ID do produto inválido | Nenhum arquivo 'image' fornecido |
+            Formato de arquivo inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Produto não encontrado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro ao tentar salvar o arquivo
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Faz upload da imagem deum produto por ID
+      tags:
+      - Produtos
+  /users:
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Responsável por atualizar o avatar do usuário
+      parameters:
+      - description: Arquivo de imagem do usuário (JPEG, PNG, GIF, máx 5MB)
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Retorna um usuário com o avatar atualizado
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "400":
+          description: 'Nenhum arquivo ''avatar'' fornecido | Formato de arquivo inválido
+            | '
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro ao tentar salvar o arquivo
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Faz upload do avatar do usuário
+      tags:
+      - Usuários
+    put:
+      consumes:
+      - application/json
+      description: Responsável por atualizar as informações de um usuário
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Retorna um usuário atualizado
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "400":
+          description: Dados de entrada inválido
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Atualizar as informações de um usuário
+      tags:
+      - Usuários
+  /users/me:
+    get:
+      description: Responável por retornar as informações de um usuário logado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retorna informações do usuário
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Retornar informações de um usuário logado
+      tags:
+      - Usuários
+  /users/update-password:
+    put:
+      consumes:
+      - application/json
+      description: Responsável por atualizar a senha de um usuário
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UserUpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Retorna um usuário atualizado
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "400":
+          description: Dados de entrada inválido | Senhas não conferem
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Não autenticado
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "429":
+          description: Limite de requisições excedido
+        "500":
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Atualizar a senha do usuário
+      tags:
+      - Usuários
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
